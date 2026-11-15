@@ -119,11 +119,11 @@ public sealed class FFmpegService : IFFmpegService
 
     private static string BuildCustomArguments(DownloadRequest download)
     {
-        List<string> arguments = [];
-
-        /*arguments.AddRange("-allowed_extensions ALL",
+        List<string> arguments = [
+            "-allowed_extensions ALL",
                            "-allowed_segment_extensions ALL",
-                           "-extension_picky 0");*/
+            "-extension_picky 0"
+        ];
 
         if (download.Options.Headers.Count > 0)
             arguments.Add($"-headers {BuildHeadersString(download.Options.Headers)}");
