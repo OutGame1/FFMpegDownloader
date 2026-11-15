@@ -10,6 +10,7 @@ public static class StringHelper
     public const string CrLf = "\r\n";
     public const char Antislash = '\\';
     public const char DblQuote = '"';
+    public const char Space = ' ';
 
     #endregion
 

@@ -149,27 +149,34 @@ public sealed partial class MainViewModel : ObservableObject
                                                       download.OutputPath,
                                                       download.Options);
 
-                bool success = await FFmpegService.RunAsync(downloadRequest,
+                try
+                {
+                    bool success = await FFmpegService.RunAsync(downloadRequest,
                                                                 OutputNotifier,
                                                                 download.CurrentTimeNotifier,
                                                                 download.TotalTimeNotifier,
                                                                 download.ProgressNotifier,
                                                                 cancellationToken);
 
-                if (success)
-                {
-                    download.Status = DownloadStatus.Completed;
-                    FFmpegOutput.Add(">>> Téléchargement terminé.");
-                }
-                else if (cancellationToken.IsCancellationRequested)
-                {
-                    download.Status = DownloadStatus.Paused;
-                    FFmpegOutput.Add(">>> Téléchargement interrompu.");
-                }
-                else
+                    if (success)
+                    {
+                        download.Status = DownloadStatus.Completed;
+                        FFmpegOutput.Add(">>> Téléchargement terminé.");
+                    }
+                    else if (cancellationToken.IsCancellationRequested)
+                    {
+                        download.Status = DownloadStatus.Paused;
+                        FFmpegOutput.Add(">>> Téléchargement interrompu.");
+                    }
+                    else
+                    {
+                        download.Status = DownloadStatus.Failed;
+                        FFmpegOutput.Add($">>> Échec du téléchargement.");
+                    }
+                } catch (Exception exception)
                 {
                     download.Status = DownloadStatus.Failed;
-                    FFmpegOutput.Add($">>> Échec du téléchargement.");
+                    FFmpegOutput.Add($">>> Échec du téléchargement : ${exception.Message}.");
                 }
             }
         }

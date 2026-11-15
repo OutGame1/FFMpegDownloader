@@ -3,7 +3,6 @@ using FFmpegDownloader.Interfaces;
 using FFmpegDownloader.Models;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Text;
 using static FFmpegDownloader.Helpers.StringHelper;
 
 namespace FFmpegDownloader.Services;
@@ -113,7 +112,6 @@ public sealed class FFmpegService : IFFmpegService
             .NotifyOnPercentageProgress(progressNotifier, mediaAnalysis.Duration);
 
         FFMpegResult result = await processor.ProcessAsynchronously(
-            throwOnError: false,
             cancellationToken: cancellationToken);
 
         return result.Success;
@@ -121,12 +119,16 @@ public sealed class FFmpegService : IFFmpegService
 
     private static string BuildCustomArguments(DownloadRequest download)
     {
-        StringBuilder customArgumentsBuilder = new();
+        List<string> arguments = [];
+
+        /*arguments.AddRange("-allowed_extensions ALL",
+                           "-allowed_segment_extensions ALL",
+                           "-extension_picky 0");*/
 
         if (download.Options.Headers.Count > 0)
-            customArgumentsBuilder.AppendLine($"-headers {BuildHeadersString(download.Options.Headers)}");
+            arguments.Add($"-headers {BuildHeadersString(download.Options.Headers)}");
 
-        return customArgumentsBuilder.ToString();
+        return string.Join(Space, arguments);
     }
 
     private static string BuildHeadersString(IDictionary<string, string> headers)
