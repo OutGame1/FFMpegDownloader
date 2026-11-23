@@ -1,9 +1,10 @@
-﻿using FFmpegDownloader.Interfaces;
+﻿using FFmpegDownloader.Enums;
+using FFmpegDownloader.Interfaces;
 using FFmpegDownloader.ViewModels;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
@@ -11,11 +12,9 @@ namespace FFmpegDownloader.Windows;
 
 public sealed partial class MainWindow : FluentWindow
 {
-    private readonly MainViewModel mainViewModel;
-    private readonly IFFmpegService ffmpegService;
-    private readonly IContentDialogService dialogService;
-
-    private bool isConsoleAtBottom = true;
+    private readonly MainViewModel MainViewModel;
+    private readonly IFFmpegService FFmpegService;
+    private readonly IContentDialogService DialogService;
 
     public MainWindow(MainViewModel mainViewModel,
                       IFFmpegService ffmpegService,
@@ -23,22 +22,34 @@ public sealed partial class MainWindow : FluentWindow
     {
         InitializeComponent();
 
-        this.mainViewModel = mainViewModel;
-        this.ffmpegService = ffmpegService;
-        this.dialogService = dialogService;
+        MainViewModel = mainViewModel;
+        FFmpegService = ffmpegService;
+        DialogService = dialogService;
 
-        DataContext = mainViewModel;
+        FFmpegConsole.PreviewMouseLeftButtonDown += (_, e) =>
+        {
+            if (e.OriginalSource is Border)
+                return;
 
-        dialogService.SetDialogHost(RootContentDialogHost);
+            DownloadItemViewModel? download = MainViewModel.SelectedDownload;
+            if (download is not null && download.Status == DownloadStatus.Downloading)
+                e.Handled = true; // Empêche la sélection du texte dans le TextBox lorsque le téléchargement est en cours
+        };
 
+        FFmpegConsole.TextChanged += (_, e) =>
+        {
+            if (FFmpegConsole.VerticalOffset >= FFmpegConsole.ExtentHeight - FFmpegConsole.ViewportHeight - 1)
+                FFmpegConsole.ScrollToEnd(); // Fait défiler automatiquement vers le bas si l'utilisateur est déjà en bas du TextBox
+        };
+
+        DataContext = MainViewModel;
+        DialogService.SetDialogHost(RootContentDialogHost);
         Closing += OnClosing;
-        FFmpegConsole.ScrollChanged += OnFFmpegConsoleScrollChanged;
-        mainViewModel.FFmpegOutput.CollectionChanged += FFmpegOutputChanged;
     }
 
     public async Task InitializeAsync()
     {
-        string? version = await ffmpegService.GetVersionAsync();
+        string? version = await FFmpegService.GetVersionAsync();
         if (version is not null)
             return;
 
@@ -59,7 +70,7 @@ public sealed partial class MainWindow : FluentWindow
             DefaultButton = ContentDialogButton.Primary
         };
 
-        ContentDialogResult result = await dialogService.ShowAsync(dialog, CancellationToken.None);
+        ContentDialogResult result = await DialogService.ShowAsync(dialog, CancellationToken.None);
 
         if (result != ContentDialogResult.Primary)
         {
@@ -68,7 +79,7 @@ public sealed partial class MainWindow : FluentWindow
         }
 
         IsEnabled = false;
-        bool installed = await ffmpegService.InstallAsync();
+        bool installed = await FFmpegService.InstallAsync();
         IsEnabled = true;
 
         if (installed)
@@ -99,21 +110,9 @@ public sealed partial class MainWindow : FluentWindow
             };
         }
 
-        await dialogService.ShowAsync(dialog, CancellationToken.None);
+        await DialogService.ShowAsync(dialog, CancellationToken.None);
 
         Application.Current.Shutdown();
-    }
-
-    private void OnFFmpegConsoleScrollChanged(object sender, ScrollChangedEventArgs e)
-    {
-        isConsoleAtBottom =
-            e.VerticalOffset + e.ViewportHeight >= e.ExtentHeight - 1;
-    }
-
-    private void FFmpegOutputChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (isConsoleAtBottom)
-            FFmpegConsole.ScrollToEnd();
     }
 
     private async void OnClosing(object? sender, CancelEventArgs e)
@@ -124,7 +123,7 @@ public sealed partial class MainWindow : FluentWindow
 
         try
         {
-            await mainViewModel.StopQueueAsync();
+            await MainViewModel.StopQueueAsync();
         }
         finally
         {

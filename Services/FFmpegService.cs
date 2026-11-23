@@ -82,7 +82,7 @@ public sealed class FFmpegService : IFFmpegService
     }
 
     public async Task<bool> RunAsync(DownloadRequest download,
-                                     IProgress<string> outputNotifier,
+                                     Action<string> outputNotifier,
                                      IProgress<TimeSpan> currentTimeNotifier,
                                      IProgress<TimeSpan> totalTimeNotifier,
                                      IProgress<double> progressNotifier,
@@ -107,7 +107,7 @@ public sealed class FFmpegService : IFFmpegService
                 .WithMetadata("date", download.Options.Date)
                 .WithMetadata("genre", download.Options.Genre)
                 .WithMetadata("comment", download.Options.Comment))
-            .NotifyOnStandardError(outputNotifier.Report)
+            .NotifyOnStandardError(outputNotifier)
             .NotifyOnProgress(currentTimeNotifier)
             .NotifyOnPercentageProgress(progressNotifier, mediaAnalysis.Duration);
 
@@ -121,7 +121,7 @@ public sealed class FFmpegService : IFFmpegService
     {
         List<string> arguments = [
             "-allowed_extensions ALL",
-                           "-allowed_segment_extensions ALL",
+            "-allowed_segment_extensions ALL",
             "-extension_picky 0"
         ];
 

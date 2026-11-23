@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace FFmpegDownloader.ViewModels;
 
@@ -25,8 +26,6 @@ public sealed partial class MainViewModel : ObservableObject
         FFmpegService = ffmpegService;
         CurlParserService = curlParserService;
         AdvancedOptionsViewModel = advancedOptionsViewModel;
-
-        OutputNotifier = new Progress<string>(FFmpegOutput.Add);
 
         Downloads.CollectionChanged += (_, _) =>
         {
@@ -51,14 +50,15 @@ public sealed partial class MainViewModel : ObservableObject
     public ObservableCollection<DownloadItemViewModel> Downloads { get; } = [];
 
     [ObservableProperty]
+    public partial DownloadItemViewModel? SelectedDownload { get; set; }
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AddToQueueCommand))]
     public partial string VideoUrl { get; set; } = string.Empty;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AddToQueueCommand))]
     public partial string OutputPath { get; set; } = string.Empty;
-
-    public ObservableCollection<string> FFmpegOutput { get; } = [];
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartQueueCommand))]
@@ -74,12 +74,6 @@ public sealed partial class MainViewModel : ObservableObject
     #region Propriétés calculées
 
     public bool IsLoading => LoadingMessage.Length != 0;
-
-    #endregion
-
-    #region Notifieurs
-
-    public readonly IProgress<string> OutputNotifier;
 
     #endregion
 
@@ -117,14 +111,10 @@ public sealed partial class MainViewModel : ObservableObject
             return;
 
         IsQueueRunning = true;
-
-        CancellationTokenSource cancellationSource = new();
-        QueueCancellation = cancellationSource;
+        QueueCancellation = new CancellationTokenSource();
         QueueCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        CancellationToken cancellationToken = cancellationSource.Token;
-
-        FFmpegOutput.Clear();
+        CancellationToken cancellationToken = QueueCancellation.Token;
 
         try
         {
@@ -135,24 +125,38 @@ public sealed partial class MainViewModel : ObservableObject
                 if (cancellationToken.IsCancellationRequested)
                     break;
 
-                DownloadItemViewModel download = Downloads[i];
+                await Download(Downloads[i], cancellationToken);
+            }
+        }
+        finally
+        {
+            QueueCancellation.Dispose();
+            QueueCancellation = null;
+            IsQueueRunning = false;
+            QueueCompletion.TrySetResult();
+            QueueCompletion = null;
+        }
+    }
 
-                if (download.Status != DownloadStatus.Pending)
-                    continue;
+    private async Task Download(DownloadItemViewModel download, CancellationToken cancellationToken)
+    {
+        if (download.Status != DownloadStatus.Pending)
+            return;
 
-                download.Status = DownloadStatus.Downloading;
-                download.Progress = 0;
+                SelectedDownload = download;
 
-                FFmpegOutput.Add($">>> Téléchargement : {download.Url}");
+        DispatcherTimer consoleTimer = new(TimeSpan.FromMilliseconds(75),
+                                           DispatcherPriority.Background,
+                                           (_, _) => download.FlushConsoleBuffer(),
+                                           Dispatcher.CurrentDispatcher);
 
-                DownloadRequest downloadRequest = new(download.Url,
-                                                      download.OutputPath,
-                                                      download.Options);
+        try
+        {
+                download.SetDownloading();
+            consoleTimer.Start();
 
-                try
-                {
-                    bool success = await FFmpegService.RunAsync(downloadRequest,
-                                                                OutputNotifier,
+            bool success = await FFmpegService.RunAsync(download.GetRequest(),
+                                                        download.ReportConsole,
                                                                 download.CurrentTimeNotifier,
                                                                 download.TotalTimeNotifier,
                                                                 download.ProgressNotifier,
@@ -160,36 +164,27 @@ public sealed partial class MainViewModel : ObservableObject
 
                     if (success)
                     {
-                        download.Status = DownloadStatus.Completed;
-                        FFmpegOutput.Add(">>> Téléchargement terminé.");
+                        download.SetCompleted();
                     }
                     else if (cancellationToken.IsCancellationRequested)
                     {
-                        download.Status = DownloadStatus.Paused;
-                        FFmpegOutput.Add(">>> Téléchargement interrompu.");
+                        download.SetPaused();
                     }
                     else
                     {
-                        download.Status = DownloadStatus.Failed;
-                        FFmpegOutput.Add($">>> Échec du téléchargement.");
+                        download.SetFailed();
                     }
-                } catch (Exception exception)
-                {
-                    download.Status = DownloadStatus.Failed;
-                    FFmpegOutput.Add($">>> Échec du téléchargement : ${exception.Message}.");
                 }
-            }
-        }
+                catch (Exception exception)
+                {
+                    download.SetFailed(exception.Message);
+                }
         finally
         {
-            QueueCancellation = null;
-            cancellationSource.Dispose();
-            IsQueueRunning = false;
-
-            QueueCompletion?.TrySetResult();
-            QueueCompletion = null;
+            consoleTimer.Stop();
+            download.FlushConsoleBuffer();
         }
-    }
+        }
 
     private bool CanStartQueue() => !IsQueueRunning && Downloads.Any(d => d.Status == DownloadStatus.Pending);
 

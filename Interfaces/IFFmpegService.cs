@@ -9,7 +9,7 @@ public interface IFFmpegService
     Task<bool> InstallAsync();
 
     Task<bool> RunAsync(DownloadRequest download,
-                        IProgress<string> outputNotifier,
+                        Action<string> outputNotifier,
                         IProgress<TimeSpan> currentTimeNotifier,
                         IProgress<TimeSpan> totalTimeNotifier,
                         IProgress<double> progressNotifier,
