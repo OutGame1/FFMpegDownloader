@@ -68,6 +68,9 @@ public sealed partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsLoading))]
     public partial string LoadingMessage { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    public partial bool IsScrollConsoleToEndButtonVisible { get; set; }
+
     #endregion
 
     #region Propriétés calculées

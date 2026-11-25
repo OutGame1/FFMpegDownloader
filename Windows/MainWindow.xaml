@@ -28,7 +28,7 @@
                      Grid.Row="0" />
 
         <Grid Grid.Row="1"
-              Margin="32,0,32,32">
+              Margin="16,0,16,16">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -36,14 +36,17 @@
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*"
+                                  MinWidth="500" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition x:Name="ConsoleColumn"
+                                  Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Ajout d'un téléchargement -->
             <Grid Grid.Row="0"
                   Grid.Column="0"
-                  Margin="0,0,16,16">
+                  Margin="0,0,0,16">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -143,8 +146,7 @@
 
             <!-- File d'attente -->
             <Grid Grid.Row="1"
-                  Grid.Column="0"
-                  Margin="0,0,16,0">
+                  Grid.Column="0">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -350,8 +352,27 @@
                 </Border>
             </Grid>
 
+            <!-- Séparateur -->
+            <GridSplitter Grid.Column="1"
+                          Grid.RowSpan="2"
+                          x:Name="ConsoleSplitter"
+                          Width="8"
+                          HorizontalAlignment="Center"
+                          Background="#30343B"
+                          ShowsPreview="False"
+                          PreviewMouseDoubleClick="OnConsoleSplitterPreviewMouseDoubleClick" />
+
+            <TextBlock Grid.Column="1"
+                       Grid.RowSpan="2"
+                       Text="⋮"
+                       Foreground="#A1A7B0"
+                       FontSize="16"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       IsHitTestVisible="False" />
+
             <!-- Sortie FFmpeg -->
-            <Grid Grid.Column="1"
+            <Grid Grid.Column="2"
                   Grid.RowSpan="2">
 
                 <Grid.RowDefinitions>
@@ -369,6 +390,7 @@
                         Background="#151515"
                         CornerRadius="8">
 
+                    <Grid>
                         <!-- Contenu du terminal -->
                     <avalonEdit:TextEditor x:Name="FFmpegConsole"
                                            IsReadOnly="True"
@@ -378,9 +400,51 @@
                                  Background="Transparent"
                                            Foreground="#D1D5DB"
                                            WordWrap="False"
+                                               ScrollViewer.ScrollChanged="OnFFmpegConsoleScrollChanged"
                                            LineNumbersForeground="AntiqueWhite"
                                  VerticalScrollBarVisibility="Auto"
                                            HorizontalScrollBarVisibility="Auto" />
+
+                        <!-- Aller en bas -->
+                        <Button x:Name="ScrollConsoleToEnd"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,20,16"
+                                Padding="8"
+                                Visibility="{Binding IsScrollConsoleToEndButtonVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Background="#30343B"
+                                Foreground="White"
+                                BorderThickness="0"
+                                ToolTip="Aller en bas"
+                                Click="OnScrollConsoleToEndClick">
+
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Background"
+                                            Value="#30343B" />
+
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="#454C56" />
+                                        </Trigger>
+
+                                        <Trigger Property="IsPressed"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="#59616D" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+
+                            <ui:SymbolIcon Symbol="ArrowDown24"
+                                           Foreground="White" />
+                        </Button>
+                    </Grid>
+
                 </Border>
             </Grid>
 

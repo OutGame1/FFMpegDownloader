@@ -2,6 +2,9 @@
 using FFmpegDownloader.ViewModels;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
@@ -20,6 +23,10 @@ public sealed partial class MainWindow : FluentWindow
         MainViewModel = mainViewModel;
         FFmpegService = ffmpegService;
         DialogService = dialogService;
+
+        // Pour masquer le curseur dans la console, on définit la couleur du caret sur Transparent.
+        FFmpegConsole.TextArea.Caret.CaretBrush = Brushes.Transparent;
+        FFmpegConsole.Document.UndoStack.SizeLimit = 0;
 
         MainViewModel.SelectedDownloadChanged += OnSelectedDownloadChange;
 
@@ -40,6 +47,11 @@ public sealed partial class MainWindow : FluentWindow
 
     private bool IsFFmpegConsoleScrolledToEnd =>
         FFmpegConsole.VerticalOffset >= FFmpegConsole.ExtentHeight - FFmpegConsole.ViewportHeight - 1;
+
+    private bool IsFFmpegConsoleSelectionActive =>
+        FFmpegConsole.SelectionLength > 0;
+
+    private bool IsFFmpegConsoleCollapsed => FFmpegConsole.ActualWidth == 0;
 
     #endregion
 
@@ -131,11 +143,11 @@ public sealed partial class MainWindow : FluentWindow
     {
         Dispatcher.BeginInvoke(() =>
         {
-            bool wasAtBottom = IsFFmpegConsoleScrolledToEnd;
+            bool scrollToEnd = !IsFFmpegConsoleSelectionActive && IsFFmpegConsoleScrolledToEnd;
 
             FFmpegConsole.AppendText(message);
 
-            if (wasAtBottom)
+            if (scrollToEnd)
                 FFmpegConsole.ScrollToEnd(); // Fait défiler automatiquement vers le bas si l'utilisateur est déjà en bas du TextBox
         });
     }
@@ -159,5 +171,25 @@ public sealed partial class MainWindow : FluentWindow
             FFmpegConsole.ScrollToEnd();
         else
             FFmpegConsole.ScrollToVerticalOffset(newDownload.HistoryVerticalOffset);
+    }
+
+    private void OnScrollConsoleToEndClick(object sender, RoutedEventArgs e)
+    {
+        FFmpegConsole.ScrollToEnd();
+    }
+
+    private void OnConsoleSplitterPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed)
+            return;
+
+        e.Handled = true;
+
+        ConsoleColumn.Width = new GridLength(IsFFmpegConsoleCollapsed ? ActualWidth / 3 : 0);
+    }
+
+    private void OnFFmpegConsoleScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        MainViewModel.IsScrollConsoleToEndButtonVisible = !IsFFmpegConsoleScrolledToEnd;
     }
 }
