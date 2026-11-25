@@ -4,6 +4,7 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
                  xmlns:vm="clr-namespace:FFmpegDownloader.ViewModels"
                  xmlns:enums="clr-namespace:FFmpegDownloader.Enums"
                  mc:Ignorable="d"
@@ -369,30 +370,17 @@
                         CornerRadius="8">
 
                         <!-- Contenu du terminal -->
-                        <TextBox Grid.Row="1"
-                                 x:Name="FFmpegConsole"
-                                 Focusable="False"
+                    <avalonEdit:TextEditor x:Name="FFmpegConsole"
+                                           IsReadOnly="True"
                                        FontFamily="Consolas"
                                        FontSize="12"
-                                 Padding="12"
-                                 Foreground="#D1D5DB"
+                                           Padding="12,0,0,0"
                                  Background="Transparent"
-                                 BorderThickness="0"
-                                 BorderBrush="#30343B"
-                                 IsReadOnly="True"
-                                 TextWrapping="NoWrap"
+                                           Foreground="#D1D5DB"
+                                           WordWrap="False"
+                                           LineNumbersForeground="AntiqueWhite"
                                  VerticalScrollBarVisibility="Auto"
-                                 HorizontalScrollBarVisibility="Auto"
-                                 SnapsToDevicePixels="True">
-
-                            <!-- On surcharge le Template, car nativement TextBox utilise un PassiveScrollViewer qui n'affiche aucune scrollbar -->
-                            <TextBox.Template>
-                                <ControlTemplate TargetType="{x:Type TextBox}">
-                                    <!-- PART_ContentHost est le contenu textuel et permet au contrôle de gérer le défilement -->
-                                    <ScrollViewer x:Name="PART_ContentHost" />
-                                </ControlTemplate>
-                            </TextBox.Template>
-                        </TextBox>
+                                           HorizontalScrollBarVisibility="Auto" />
                 </Border>
             </Grid>
 
