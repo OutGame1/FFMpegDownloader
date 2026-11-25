@@ -180,37 +180,6 @@
                     </ScrollViewer>
                 </TabItem>
 
-                <!-- FFMpeg -->
-                <TabItem Header="FFMpeg">
-                    <Grid Margin="8,16">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="Arguments supplémentaires"
-                                       FontSize="20"
-                                       FontWeight="SemiBold" />
-
-                            <TextBlock Text="Ajoutez des arguments FFMpeg personnalisés à la commande générée."
-                                       Foreground="#A0A0A0"
-                                       TextWrapping="Wrap"
-                                       Margin="0,4,0,0" />
-                        </StackPanel>
-
-                        <TextBox Grid.Row="1"
-                                 Text="{Binding ExtraArguments, UpdateSourceTrigger=PropertyChanged}"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 VerticalScrollBarVisibility="Auto"
-                                 HorizontalScrollBarVisibility="Auto"
-                                 FontFamily="Cascadia Mono"
-                                 FontSize="13"
-                                 Padding="12" />
-                    </Grid>
-                </TabItem>
-
             </TabControl>
         </Grid>
 

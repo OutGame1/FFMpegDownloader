@@ -7,10 +7,16 @@ public static class StringHelper
 
     #region Constantes
 
+    public const char Lf = '\n';
     public const string CrLf = "\r\n";
     public const char Antislash = '\\';
     public const char DblQuote = '"';
     public const char Space = ' ';
+    public const string IfModifiedSinceHeader = "if-modified-since";
+    public const string IfNoneMatchHeader = "if-none-match";
+    public const string CacheControlHeader = "cache-control";
+    public const string PragmaHeader = "pragma";
+    public const string NoCacheHeaderValue = "no-cache";
 
     #endregion
 

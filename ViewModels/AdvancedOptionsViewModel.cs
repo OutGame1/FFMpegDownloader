@@ -30,9 +30,6 @@ public sealed partial class AdvancedOptionsViewModel : ObservableObject
     [ObservableProperty]
     public partial string Comment { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string ExtraArguments { get; set; } = string.Empty;
-
     #endregion
 
     #region Commandes
@@ -58,8 +55,7 @@ public sealed partial class AdvancedOptionsViewModel : ObservableObject
             Album,
             Date,
             Genre,
-            Comment,
-            ExtraArguments);
+            Comment);
 
     public void Reset()
     {
@@ -70,6 +66,5 @@ public sealed partial class AdvancedOptionsViewModel : ObservableObject
         Date = string.Empty;
         Genre = string.Empty;
         Comment = string.Empty;
-        ExtraArguments = string.Empty;
     }
 }

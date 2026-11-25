@@ -18,16 +18,13 @@ public sealed record DownloadOptions
 
     public readonly string Comment;
 
-    public readonly string ExtraArguments;
-
     public DownloadOptions(IEnumerable<IHttpHeader> headers,
                            string title,
                            string artist,
                            string album,
                            string date,
                            string genre,
-                           string comment,
-                           string extraArguments)
+                           string comment)
     {
         Headers = headers.ToDictionary(header => header.Name,
                                        header => header.Value,
@@ -38,6 +35,5 @@ public sealed record DownloadOptions
         Date = date;
         Genre = genre;
         Comment = comment;
-        ExtraArguments = extraArguments;
     }
 }

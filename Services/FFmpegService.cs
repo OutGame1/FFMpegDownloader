@@ -40,7 +40,7 @@ public sealed class FFMpegService : IFFMpegService
                 return null;
 
             // Première ligne : ffmpeg version X.X.X ...
-            return new([.. output.TakeWhile(c => c != '\n')]);
+            return new([.. output.TakeWhile(c => c != Lf)]);
         }
         catch (Exception ex) when (ex is Win32Exception
                                       or InvalidOperationException)
@@ -134,10 +134,10 @@ public sealed class FFMpegService : IFFMpegService
     private static string BuildHeadersString(IDictionary<string, string> headers)
     {
         // Ajuste les en-têtes de cache pour forcer le téléchargement
-        headers.Remove("if-modified-since");
-        headers.Remove("if-none-match");
-        headers["cache-control"] = "no-cache";
-        headers["pragma"] = "no-cache";
+        headers.Remove(IfModifiedSinceHeader);
+        headers.Remove(IfNoneMatchHeader);
+        headers[CacheControlHeader] = NoCacheHeaderValue;
+        headers[PragmaHeader] = NoCacheHeaderValue;
 
         IEnumerable<string> headerLines =
             headers.Select(header => $"{header.Key}: {header.Value}");
