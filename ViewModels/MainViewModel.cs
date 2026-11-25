@@ -10,7 +10,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace FFmpegDownloader.ViewModels;
 
@@ -74,6 +73,17 @@ public sealed partial class MainViewModel : ObservableObject
     #region Propriétés calculées
 
     public bool IsLoading => LoadingMessage.Length != 0;
+
+    #endregion
+
+    #region Événements
+
+    public event Action<DownloadItemViewModel?, DownloadItemViewModel?>? SelectedDownloadChanged;
+
+    partial void OnSelectedDownloadChanged(DownloadItemViewModel? oldValue, DownloadItemViewModel? newValue)
+    {
+        SelectedDownloadChanged?.Invoke(oldValue, newValue);
+    }
 
     #endregion
 
@@ -143,18 +153,12 @@ public sealed partial class MainViewModel : ObservableObject
         if (download.Status != DownloadStatus.Pending)
             return;
 
-                SelectedDownload = download;
-
-        DispatcherTimer consoleTimer = new(TimeSpan.FromMilliseconds(75),
-                                           DispatcherPriority.Background,
-                                           (_, _) => download.FlushConsoleBuffer(),
-                                           Dispatcher.CurrentDispatcher);
+            download.Status = DownloadStatus.Downloading;
+            download.Progress = 0;
+        SelectedDownload = download;
 
         try
         {
-                download.SetDownloading();
-            consoleTimer.Start();
-
             bool success = await FFmpegService.RunAsync(download.GetRequest(),
                                                         download.ReportConsole,
                                                                 download.CurrentTimeNotifier,
@@ -164,25 +168,22 @@ public sealed partial class MainViewModel : ObservableObject
 
                     if (success)
                     {
-                        download.SetCompleted();
+                download.Status = DownloadStatus.Completed;
                     }
                     else if (cancellationToken.IsCancellationRequested)
                     {
-                        download.SetPaused();
+                download.Status = DownloadStatus.Paused;
                     }
                     else
                     {
-                        download.SetFailed();
+                download.Status = DownloadStatus.Failed;
                     }
                 }
                 catch (Exception exception)
                 {
-                    download.SetFailed(exception.Message);
-                }
-        finally
-        {
-            consoleTimer.Stop();
-            download.FlushConsoleBuffer();
+            download.Status = DownloadStatus.Failed;
+            // TODO: Afficher un message d'erreur à l'utilisateur.
+            Debug.WriteLine($"Erreur lors du téléchargement de {download.Url} : {exception.Message}");
         }
         }
 

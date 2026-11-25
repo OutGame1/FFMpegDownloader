@@ -366,51 +366,17 @@
 
                 <Border Grid.Row="1"
                         Background="#151515"
-                        CornerRadius="8"
-                        Padding="12">
-
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <!-- Barre supérieure du terminal -->
-                        <DockPanel Grid.Row="0"
-                                   Margin="0,0,0,12">
-
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center">
-
-                                <Ellipse Width="10"
-                                         Height="10"
-                                         Fill="#4CAF50"
-                                         Margin="0,0,8,0" />
-
-                                <TextBlock Text="FFmpeg"
-                                           Foreground="#A0A0A0"
-                                           FontSize="12"
-                                           FontWeight="SemiBold" />
-
-                            </StackPanel>
-
-                            <TextBlock Text="En attente"
-                                       Foreground="#A0A0A0"
-                                       FontSize="12"
-                                       HorizontalAlignment="Right"
-                                       DockPanel.Dock="Right" />
-
-                        </DockPanel>
+                        CornerRadius="8">
 
                         <!-- Contenu du terminal -->
                         <TextBox Grid.Row="1"
                                  x:Name="FFmpegConsole"
-                                 Text="{Binding SelectedDownload.ConsoleOutput}"
+                                 Focusable="False"
                                        FontFamily="Consolas"
                                        FontSize="12"
+                                 Padding="12"
                                  Foreground="#D1D5DB"
                                  Background="Transparent"
-                                 Padding="0"
                                  BorderThickness="0"
                                  BorderBrush="#30343B"
                                  IsReadOnly="True"
@@ -427,8 +393,6 @@
                                 </ControlTemplate>
                             </TextBox.Template>
                         </TextBox>
-
-                    </Grid>
                 </Border>
             </Grid>
 

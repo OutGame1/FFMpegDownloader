@@ -1,9 +1,7 @@
-﻿using FFmpegDownloader.Enums;
-using FFmpegDownloader.Interfaces;
+﻿using FFmpegDownloader.Interfaces;
 using FFmpegDownloader.ViewModels;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
@@ -12,9 +10,6 @@ namespace FFmpegDownloader.Windows;
 
 public sealed partial class MainWindow : FluentWindow
 {
-    private readonly MainViewModel MainViewModel;
-    private readonly IFFmpegService FFmpegService;
-    private readonly IContentDialogService DialogService;
 
     public MainWindow(MainViewModel mainViewModel,
                       IFFmpegService ffmpegService,
@@ -26,26 +21,27 @@ public sealed partial class MainWindow : FluentWindow
         FFmpegService = ffmpegService;
         DialogService = dialogService;
 
-        FFmpegConsole.PreviewMouseLeftButtonDown += (_, e) =>
-        {
-            if (e.OriginalSource is Border)
-                return;
-
-            DownloadItemViewModel? download = MainViewModel.SelectedDownload;
-            if (download is not null && download.Status == DownloadStatus.Downloading)
-                e.Handled = true; // Empêche la sélection du texte dans le TextBox lorsque le téléchargement est en cours
-        };
-
-        FFmpegConsole.TextChanged += (_, e) =>
-        {
-            if (FFmpegConsole.VerticalOffset >= FFmpegConsole.ExtentHeight - FFmpegConsole.ViewportHeight - 1)
-                FFmpegConsole.ScrollToEnd(); // Fait défiler automatiquement vers le bas si l'utilisateur est déjà en bas du TextBox
-        };
+        MainViewModel.SelectedDownloadChanged += OnSelectedDownloadChange;
 
         DataContext = MainViewModel;
         DialogService.SetDialogHost(RootContentDialogHost);
         Closing += OnClosing;
     }
+
+    #region Champs
+
+    private readonly MainViewModel MainViewModel;
+    private readonly IFFmpegService FFmpegService;
+    private readonly IContentDialogService DialogService;
+
+    #endregion
+
+    #region Propriétés calculées
+
+    private bool IsFFmpegConsoleScrolledToEnd =>
+        FFmpegConsole.VerticalOffset >= FFmpegConsole.ExtentHeight - FFmpegConsole.ViewportHeight - 1;
+
+    #endregion
 
     public async Task InitializeAsync()
     {
@@ -129,5 +125,39 @@ public sealed partial class MainWindow : FluentWindow
         {
             await Dispatcher.InvokeAsync(Close);
         }
+    }
+
+    private void OnConsoleTextReceived(string message)
+    {
+        Dispatcher.BeginInvoke(() =>
+        {
+            bool wasAtBottom = IsFFmpegConsoleScrolledToEnd;
+
+            FFmpegConsole.AppendText(message);
+
+            if (wasAtBottom)
+                FFmpegConsole.ScrollToEnd(); // Fait défiler automatiquement vers le bas si l'utilisateur est déjà en bas du TextBox
+        });
+    }
+
+    private void OnSelectedDownloadChange(DownloadItemViewModel? oldDownload, DownloadItemViewModel? newDownload)
+    {
+        if (oldDownload is not null)
+        {
+            oldDownload.UnsubscribeConsole();
+            oldDownload.HistoryVerticalOffset = FFmpegConsole.VerticalOffset;
+        }
+
+        if (newDownload is null)
+        {
+            FFmpegConsole.Clear();
+            return;
+        }
+
+        FFmpegConsole.Text = newDownload.SubscribeConsole(OnConsoleTextReceived);
+        if (newDownload.IsDownloading)
+            FFmpegConsole.ScrollToEnd();
+        else
+            FFmpegConsole.ScrollToVerticalOffset(newDownload.HistoryVerticalOffset);
     }
 }
