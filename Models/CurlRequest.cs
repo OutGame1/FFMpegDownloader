@@ -1,4 +1,4 @@
-﻿namespace FFmpegDownloader.Models;
+﻿namespace FFMpegDownloader.Models;
 
 public sealed class CurlRequest(string url)
 {

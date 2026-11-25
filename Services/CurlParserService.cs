@@ -1,8 +1,8 @@
-﻿using FFmpegDownloader.Interfaces;
-using FFmpegDownloader.Models;
+﻿using FFMpegDownloader.Interfaces;
+using FFMpegDownloader.Models;
 using System.Text.RegularExpressions;
 
-namespace FFmpegDownloader.Services;
+namespace FFMpegDownloader.Services;
 
 public sealed partial class CurlParserService : ICurlParserService
 {

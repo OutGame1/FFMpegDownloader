@@ -1,5 +1,5 @@
-﻿using FFmpegDownloader.Interfaces;
-using FFmpegDownloader.ViewModels;
+﻿using FFMpegDownloader.Interfaces;
+using FFMpegDownloader.ViewModels;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,24 +9,24 @@ using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
-namespace FFmpegDownloader.Windows;
+namespace FFMpegDownloader.Windows;
 
 public sealed partial class MainWindow : FluentWindow
 {
 
     public MainWindow(MainViewModel mainViewModel,
-                      IFFmpegService ffmpegService,
+                      IFFMpegService ffmpegService,
                       IContentDialogService dialogService)
     {
         InitializeComponent();
 
         MainViewModel = mainViewModel;
-        FFmpegService = ffmpegService;
+        FFMpegService = ffmpegService;
         DialogService = dialogService;
 
         // Pour masquer le curseur dans la console, on définit la couleur du caret sur Transparent.
-        FFmpegConsole.TextArea.Caret.CaretBrush = Brushes.Transparent;
-        FFmpegConsole.Document.UndoStack.SizeLimit = 0;
+        FFMpegConsole.TextArea.Caret.CaretBrush = Brushes.Transparent;
+        FFMpegConsole.Document.UndoStack.SizeLimit = 0;
 
         MainViewModel.SelectedDownloadChanged += OnSelectedDownloadChange;
 
@@ -38,35 +38,35 @@ public sealed partial class MainWindow : FluentWindow
     #region Champs
 
     private readonly MainViewModel MainViewModel;
-    private readonly IFFmpegService FFmpegService;
+    private readonly IFFMpegService FFMpegService;
     private readonly IContentDialogService DialogService;
 
     #endregion
 
     #region Propriétés calculées
 
-    private bool IsFFmpegConsoleScrolledToEnd =>
-        FFmpegConsole.VerticalOffset >= FFmpegConsole.ExtentHeight - FFmpegConsole.ViewportHeight - 1;
+    private bool IsFFMpegConsoleScrolledToEnd =>
+        FFMpegConsole.VerticalOffset >= FFMpegConsole.ExtentHeight - FFMpegConsole.ViewportHeight - 1;
 
-    private bool IsFFmpegConsoleSelectionActive =>
-        FFmpegConsole.SelectionLength > 0;
+    private bool IsFFMpegConsoleSelectionActive =>
+        FFMpegConsole.SelectionLength > 0;
 
-    private bool IsFFmpegConsoleCollapsed => FFmpegConsole.ActualWidth == 0;
+    private bool IsFFMpegConsoleCollapsed => FFMpegConsole.ActualWidth == 0;
 
     #endregion
 
     public async Task InitializeAsync()
     {
-        string? version = await FFmpegService.GetVersionAsync();
+        string? version = await FFMpegService.GetVersionAsync();
         if (version is not null)
             return;
 
         ContentDialog dialog = new()
         {
-            Title = "FFmpeg manquant",
+            Title = "FFMpeg manquant",
             Content =
             """
-            FFmpeg n'a pas été détecté sur votre ordinateur.
+            FFMpeg n'a pas été détecté sur votre ordinateur.
             Ce logiciel est nécessaire pour que l'application fonctionne correctement.
             
             Voulez-vous l'installer automatiquement ?
@@ -87,7 +87,7 @@ public sealed partial class MainWindow : FluentWindow
         }
 
         IsEnabled = false;
-        bool installed = await FFmpegService.InstallAsync();
+        bool installed = await FFMpegService.InstallAsync();
         IsEnabled = true;
 
         if (installed)
@@ -97,7 +97,7 @@ public sealed partial class MainWindow : FluentWindow
                 Title = "Installation terminée",
                 Content =
                 """
-                FFmpeg a été installé.
+                FFMpeg a été installé.
                 
                 Veuillez redémarrer l'application pour actualiser les variables d'environnement.
                 """,
@@ -111,7 +111,7 @@ public sealed partial class MainWindow : FluentWindow
             dialog = new()
             {
                 Title = "Erreur",
-                Content = "L'installation de FFmpeg a échoué.",
+                Content = "L'installation de FFMpeg a échoué.",
                 CloseButtonText = "OK",
                 CloseButtonAppearance = ControlAppearance.Info,
                 DefaultButton = ContentDialogButton.Close
@@ -143,12 +143,12 @@ public sealed partial class MainWindow : FluentWindow
     {
         Dispatcher.BeginInvoke(() =>
         {
-            bool scrollToEnd = !IsFFmpegConsoleSelectionActive && IsFFmpegConsoleScrolledToEnd;
+            bool scrollToEnd = !IsFFMpegConsoleSelectionActive && IsFFMpegConsoleScrolledToEnd;
 
-            FFmpegConsole.AppendText(message);
+            FFMpegConsole.AppendText(message);
 
             if (scrollToEnd)
-                FFmpegConsole.ScrollToEnd(); // Fait défiler automatiquement vers le bas si l'utilisateur est déjà en bas du TextBox
+                FFMpegConsole.ScrollToEnd(); // Fait défiler automatiquement vers le bas si l'utilisateur est déjà en bas du TextBox
         });
     }
 
@@ -157,25 +157,25 @@ public sealed partial class MainWindow : FluentWindow
         if (oldDownload is not null)
         {
             oldDownload.UnsubscribeConsole();
-            oldDownload.HistoryVerticalOffset = FFmpegConsole.VerticalOffset;
+            oldDownload.HistoryVerticalOffset = FFMpegConsole.VerticalOffset;
         }
 
         if (newDownload is null)
         {
-            FFmpegConsole.Clear();
+            FFMpegConsole.Clear();
             return;
         }
 
-        FFmpegConsole.Text = newDownload.SubscribeConsole(OnConsoleTextReceived);
+        FFMpegConsole.Text = newDownload.SubscribeConsole(OnConsoleTextReceived);
         if (newDownload.IsDownloading)
-            FFmpegConsole.ScrollToEnd();
+            FFMpegConsole.ScrollToEnd();
         else
-            FFmpegConsole.ScrollToVerticalOffset(newDownload.HistoryVerticalOffset);
+            FFMpegConsole.ScrollToVerticalOffset(newDownload.HistoryVerticalOffset);
     }
 
     private void OnScrollConsoleToEndClick(object sender, RoutedEventArgs e)
     {
-        FFmpegConsole.ScrollToEnd();
+        FFMpegConsole.ScrollToEnd();
     }
 
     private void OnConsoleSplitterPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -185,11 +185,11 @@ public sealed partial class MainWindow : FluentWindow
 
         e.Handled = true;
 
-        ConsoleColumn.Width = new GridLength(IsFFmpegConsoleCollapsed ? ActualWidth / 3 : 0);
+        ConsoleColumn.Width = new GridLength(IsFFMpegConsoleCollapsed ? ActualWidth / 3 : 0);
     }
 
-    private void OnFFmpegConsoleScrollChanged(object sender, ScrollChangedEventArgs e)
+    private void OnFFMpegConsoleScrollChanged(object sender, ScrollChangedEventArgs e)
     {
-        MainViewModel.IsScrollConsoleToEndButtonVisible = !IsFFmpegConsoleScrolledToEnd;
+        MainViewModel.IsScrollConsoleToEndButtonVisible = !IsFFMpegConsoleScrolledToEnd;
     }
 }

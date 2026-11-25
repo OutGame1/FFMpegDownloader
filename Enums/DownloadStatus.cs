@@ -1,4 +1,4 @@
-﻿namespace FFmpegDownloader.Enums;
+﻿namespace FFMpegDownloader.Enums;
 
 public enum DownloadStatus
 {

@@ -1,8 +1,8 @@
-﻿using FFmpegDownloader.Models;
+﻿using FFMpegDownloader.Models;
 
-namespace FFmpegDownloader.Interfaces;
+namespace FFMpegDownloader.Interfaces;
 
-public interface IFFmpegService
+public interface IFFMpegService
 {
     Task<string?> GetVersionAsync();
 

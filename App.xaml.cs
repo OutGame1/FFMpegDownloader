@@ -1,13 +1,13 @@
-﻿using FFmpegDownloader.Interfaces;
-using FFmpegDownloader.Services;
-using FFmpegDownloader.ViewModels;
-using FFmpegDownloader.Windows;
+﻿using FFMpegDownloader.Interfaces;
+using FFMpegDownloader.Services;
+using FFMpegDownloader.ViewModels;
+using FFMpegDownloader.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
 using Wpf.Ui;
 
-namespace FFmpegDownloader;
+namespace FFMpegDownloader;
 
 public sealed partial class App : Application
 {
@@ -24,7 +24,7 @@ public sealed partial class App : Application
                         .AddTransient<AdvancedOptionsWindow>()
                         .AddTransient<CurlImportViewModel>()
                         .AddTransient<CurlImportWindow>()
-                        .AddSingleton<IFFmpegService, FFmpegService>()
+                        .AddSingleton<IFFMpegService, FFMpegService>()
                         .AddSingleton<ICurlParserService, CurlParserService>()
                         .AddSingleton<IContentDialogService, ContentDialogService>();
             })

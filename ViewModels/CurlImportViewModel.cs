@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FFmpegDownloader.ViewModels;
+namespace FFMpegDownloader.ViewModels;
 
 public sealed partial class CurlImportViewModel : ObservableObject
 {

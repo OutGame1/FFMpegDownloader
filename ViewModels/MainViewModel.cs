@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FFmpegDownloader.Enums;
-using FFmpegDownloader.Interfaces;
-using FFmpegDownloader.Models;
-using FFmpegDownloader.Windows;
+using FFMpegDownloader.Enums;
+using FFMpegDownloader.Interfaces;
+using FFMpegDownloader.Models;
+using FFMpegDownloader.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -11,18 +11,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
-namespace FFmpegDownloader.ViewModels;
+namespace FFMpegDownloader.ViewModels;
 
 public sealed partial class MainViewModel : ObservableObject
 {
 
     public MainViewModel(IServiceProvider serviceProvider,
-                         IFFmpegService ffmpegService,
+                         IFFMpegService ffmpegService,
                          ICurlParserService curlParserService,
                          AdvancedOptionsViewModel advancedOptionsViewModel)
     {
         ServiceProvider = serviceProvider;
-        FFmpegService = ffmpegService;
+        FFMpegService = ffmpegService;
         CurlParserService = curlParserService;
         AdvancedOptionsViewModel = advancedOptionsViewModel;
 
@@ -36,7 +36,7 @@ public sealed partial class MainViewModel : ObservableObject
     #region Champs
 
     private readonly IServiceProvider ServiceProvider;
-    private readonly IFFmpegService FFmpegService;
+    private readonly IFFMpegService FFMpegService;
     private readonly ICurlParserService CurlParserService;
     private readonly AdvancedOptionsViewModel AdvancedOptionsViewModel;
     private CancellationTokenSource? QueueCancellation;
@@ -162,7 +162,7 @@ public sealed partial class MainViewModel : ObservableObject
 
         try
         {
-            bool success = await FFmpegService.RunAsync(download.GetRequest(),
+            bool success = await FFMpegService.RunAsync(download.GetRequest(),
                                                         download.ReportConsole,
                                                                 download.CurrentTimeNotifier,
                                                                 download.TotalTimeNotifier,

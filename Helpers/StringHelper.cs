@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace FFmpegDownloader.Helpers;
+namespace FFMpegDownloader.Helpers;
 
 public static class StringHelper
 {

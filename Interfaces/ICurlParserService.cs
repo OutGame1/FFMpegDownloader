@@ -1,6 +1,6 @@
-﻿using FFmpegDownloader.Models;
+﻿using FFMpegDownloader.Models;
 
-namespace FFmpegDownloader.Interfaces;
+namespace FFMpegDownloader.Interfaces;
 
 public interface ICurlParserService
 {

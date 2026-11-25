@@ -1,6 +1,6 @@
-﻿using FFmpegDownloader.Interfaces;
+﻿using FFMpegDownloader.Interfaces;
 
-namespace FFmpegDownloader.Models;
+namespace FFMpegDownloader.Models;
 
 public sealed record DownloadOptions
 {

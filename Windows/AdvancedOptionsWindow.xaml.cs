@@ -1,8 +1,8 @@
-﻿using FFmpegDownloader.ViewModels;
+﻿using FFMpegDownloader.ViewModels;
 using System.Windows;
 using Wpf.Ui.Controls;
 
-namespace FFmpegDownloader.Windows;
+namespace FFMpegDownloader.Windows;
 
 public sealed partial class AdvancedOptionsWindow : FluentWindow
 {

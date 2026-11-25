@@ -1,4 +1,4 @@
-﻿namespace FFmpegDownloader.Interfaces;
+﻿namespace FFMpegDownloader.Interfaces;
 
 public interface IHttpHeader
 {

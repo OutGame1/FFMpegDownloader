@@ -1,13 +1,13 @@
 ﻿using FFMpegCore;
-using FFmpegDownloader.Interfaces;
-using FFmpegDownloader.Models;
+using FFMpegDownloader.Interfaces;
+using FFMpegDownloader.Models;
 using System.ComponentModel;
 using System.Diagnostics;
-using static FFmpegDownloader.Helpers.StringHelper;
+using static FFMpegDownloader.Helpers.StringHelper;
 
-namespace FFmpegDownloader.Services;
+namespace FFMpegDownloader.Services;
 
-public sealed class FFmpegService : IFFmpegService
+public sealed class FFMpegService : IFFMpegService
 {
     public async Task<string?> GetVersionAsync()
     {
@@ -45,7 +45,7 @@ public sealed class FFmpegService : IFFmpegService
         catch (Exception ex) when (ex is Win32Exception
                                       or InvalidOperationException)
         {
-            // FFmpeg absent ou impossible à exécuter.
+            // FFMpeg absent ou impossible à exécuter.
             return null;
         }
     }

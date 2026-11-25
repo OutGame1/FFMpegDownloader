@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FFmpegDownloader.Models;
+using FFMpegDownloader.Models;
 using System.Collections.ObjectModel;
 
-namespace FFmpegDownloader.ViewModels;
+namespace FFMpegDownloader.ViewModels;
 
 public sealed partial class AdvancedOptionsViewModel : ObservableObject
 {

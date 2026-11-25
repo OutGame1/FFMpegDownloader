@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FFmpegDownloader.Enums;
-using FFmpegDownloader.Models;
+using FFMpegDownloader.Enums;
+using FFMpegDownloader.Models;
 using System.IO;
 using System.Text;
 
-namespace FFmpegDownloader.ViewModels;
+namespace FFMpegDownloader.ViewModels;
 
 public partial class DownloadItemViewModel : ObservableObject
 {

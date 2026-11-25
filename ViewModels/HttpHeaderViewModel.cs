@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FFmpegDownloader.Interfaces;
+using FFMpegDownloader.Interfaces;
 
-namespace FFmpegDownloader.ViewModels;
+namespace FFMpegDownloader.ViewModels;
 
 public sealed partial class HttpHeaderViewModel : ObservableObject, IHttpHeader
 {
